@@ -1,7 +1,7 @@
-from keras.models import Sequential
+from keras.models import Sequential, model_from_json
 from keras.layers import Convolution2D, ZeroPadding2D, \
     MaxPooling2D, Activation, Dense, Dropout, Flatten
-import h5py
+import h5py, os
 import subprocess, traceback
 
 
@@ -61,8 +61,7 @@ class Utility:
                 traceback.format_exc())
             return False
 
-    def getVggModel(self, model_path='/tmp', output_path='/tmp',
-                    proto_path='/tmp'):
+    def getVggModel(self, model_path='/tmp'):
         '''
         This method returns a pretrained Keras VGG Model
         :param model_path: name of the database
@@ -70,15 +69,12 @@ class Utility:
         :param proto_path: Path to the proto text
         :return: Keras Model object
         '''
-        load_status = self.convertCaffeModel2Keras(model_path,
-                                                   output_path,
-                                                   proto_path)
 
-        if load_status is None:
-            return None
+        model_weights = os.path.join(model_path,
+                                     'Keras_model_weights.h5')
 
         model = self.build_vgg_model()
-        f = h5py.File(output_path)
+        f = h5py.File(model_weights)
         for k in range(f.attrs['nb_layers']):
             if k >= len(model.layers):
                 # we don't look at the last (fully-connected)
@@ -95,11 +91,11 @@ class Utility:
         return model
 
     # How to load the model
-    def build_vgg_model(img_width=256, img_height=256):
+    def build_vgg_model(img_width=224, img_height=224):
 
         model = Sequential()
-        model.add(ZeroPadding2D((1, 1), input_shape=(
-            3, img_width, img_height)))
+        model.add(ZeroPadding2D((1, 1), input_shape=(3, 224,
+                                                     224)))
         model.add(Convolution2D(64, 3, 3, activation='relu',
                                 name='conv1_1'))
         model.add(Activation('relu'))
