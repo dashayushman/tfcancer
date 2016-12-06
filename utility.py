@@ -3,6 +3,8 @@ from keras.layers import Convolution2D, ZeroPadding2D, \
     MaxPooling2D, Activation, Dense, Dropout, Flatten
 import h5py, os
 import subprocess, traceback
+import numpy as np
+import scipy.misc as misc
 
 
 class Utility:
@@ -166,3 +168,26 @@ class Utility:
         model.add(Dense(1000))
         model.add(Activation('softmax'))
         return model
+
+    def addChannelstoImages(self, images, no_channels):
+        d = []
+        for j, image in enumerate(images):
+            transformed_image = np.concatenate(([image], [image]),
+                                               axis = 0)
+            i = 0
+            while (i < (no_channels-2)):
+                transformed_image = np.append(transformed_image,
+                                              [image], axis = 0)
+                i += 1
+            d.append(transformed_image)
+        return np.array(d)
+
+        return images
+
+    def resizeImages(self, images, shape = [224,224]):
+        d = []
+        for j, image in enumerate(images):
+            transformed_image = misc.imresize(image,shape,
+                                          interp='bicubic')
+            d.append(transformed_image)
+        return np.array(d)
