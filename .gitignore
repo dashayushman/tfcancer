@@ -1,3 +1,4 @@
-.idea/
-data/
-keras/
+data.json
+preprocessed_metadata_doi.csv
+.idea
+data
